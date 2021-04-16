@@ -41,7 +41,7 @@ The formatting style is based on `clang-format`-defined Microsoft style.
 [.clang-format](.clang-format) file defines the
 [clang-format](https://clang.llvm.org/docs/ClangFormat.html) configuration.
 
-Importing `StandardConfig.cmake` add these CMake targets:
+Including `StandardConfig.cmake` adds these CMake targets:
 
 - `format` Shows which files are affected by clang-format
 - `check-format` Errors if files are affected by clang-format (for CI integration)
