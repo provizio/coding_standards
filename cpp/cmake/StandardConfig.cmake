@@ -55,8 +55,10 @@ function(StandardConfig config_type)
   endif()
 
   # clang-tidy (use as clang-tidy;arguments)
-  set(CMAKE_CXX_CLANG_TIDY "" CACHE STRING "clang-tidy binary and config")
-  
+  set(CMAKE_CXX_CLANG_TIDY
+      ""
+      CACHE STRING "clang-tidy binary and config")
+
   # Enable generating compile_commands.json to be used by tools
   set(CMAKE_EXPORT_COMPILE_COMMANDS
       TRUE
@@ -89,27 +91,21 @@ function(StandardConfig config_type)
   endif()
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-  # Enable CPM (https://github.com/cpm-cmake)
-  if(NOT EXISTS "${CMAKE_BINARY_DIR}/CPM.cmake")
-    message(STATUS "Downloading CPM.cmake")
-    file(
-      DOWNLOAD
-      "https://github.com/cpm-cmake/CPM.cmake/releases/download/v0.32.0/get_cpm.cmake"
-      "${CMAKE_BINARY_DIR}/CPM.cmake"
-      TLS_VERIFY ${TLS_VERIFY})
-  endif()
-  include(${CMAKE_BINARY_DIR}/CPM.cmake)
-
   # Enable Format.cmake (https://github.com/TheLartians/Format.cmake)
-  cpmaddpackage(
-    NAME
-    Format.cmake
-    VERSION
-    1.7.1
-    GITHUB_REPOSITORY
-    TheLartians/Format.cmake
-    OPTIONS
-    "FORMAT_SKIP_CMAKE YES")
+  set(FORMAT_CMAKE_VERSION "1.7.1")
+  set(FORMAT_CMAKE_PATH
+      "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
+  if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+    set(FORMAT_CMAKE_DOWNLOAD_URL
+        "https://github.com/TheLartians/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
+    )
+    file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
+         TLS_VERIFY ${TLS_VERIFY})
+    execute_process(COMMAND tar -xf "${FORMAT_CMAKE_PATH}.tar.gz" -C
+                            "${CMAKE_BINARY_DIR}")
+  endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+  set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
+  add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
 
   # Download clang-format and clang-tidy
   file(DOWNLOAD "${CODING_STANDARDS_ROOT}/cpp/.clang-format"
