@@ -86,7 +86,7 @@ function(StandardConfig config_type)
   if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
     message(STATUS "Downloading conan.cmake...")
     file(DOWNLOAD
-         "https://github.com/conan-io/cmake-conan/raw/v0.16.1/conan.cmake"
+         "https://github.com/conan-io/cmake-conan/raw/0.17.0/conan.cmake"
          "${CMAKE_BINARY_DIR}/conan.cmake" TLS_VERIFY ${TLS_VERIFY})
   endif()
   include(${CMAKE_BINARY_DIR}/conan.cmake)
