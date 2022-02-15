@@ -56,3 +56,30 @@ clang-tidy analysis can be turned on by providing
 `-DCMAKE_CXX_CLANG_TIDY=clang-tidy` CMake argument.
 clang-tidy is capable of automatically fixing some of the detected issues: use
 `-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--fix` to enable this mode.
+
+## Conan
+
+Including `StandardConfig.cmake` also includes [cmake-conan](https://github.com/conan-io/cmake-conan),
+making it easy to resolve Conan dependencies via CMake:
+
+  1. Pull the dependecies, f.e.
+
+     ```CMake
+     conan_cmake_run(REQUIRES 
+                         boost/1.76.0
+                         ms-gsl/3.1.0
+                    BASIC_SETUP
+                    CMAKE_TARGETS
+                    BUILD missing)
+     ```
+
+  2. Make your CMake projects (libraries and executables) depend on them, f.e.:
+
+     ```CMake
+     target_link_libraries(your_library_or_executable
+          CONAN_PKG::boost
+          CONAN_PKG::ms-gsl
+     )
+     ```
+
+Conan has to be [installed](https://pypi.org/project/conan/) in the system.
