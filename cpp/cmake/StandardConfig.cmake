@@ -12,6 +12,13 @@ if(NOT CMAKE_BUILD_TYPE)
       CACHE STRING "Choose the type of build." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+# Static analysis disabled by default
+if(NOT STATIC_ANALYSIS)
+  set(STATIC_ANALYSIS
+        "OFF"
+        CACHE STRING "Static analysis")
+endif(NOT STATIC_ANALYSIS)
+
 function(StandardConfig config_type)
   set(CODING_STANDARDS_ROOT
       "https://raw.githubusercontent.com/provizio/coding_standards/master")
@@ -54,10 +61,21 @@ function(StandardConfig config_type)
         PARENT_SCOPE)
   endif()
 
+  # Download clang-format and clang-tidy configs
+  file(DOWNLOAD "${CODING_STANDARDS_ROOT}/cpp/.clang-format"
+       "${CMAKE_SOURCE_DIR}/.clang-format" TLS_VERIFY ${TLS_VERIFY})
+  file(DOWNLOAD "${CODING_STANDARDS_ROOT}/cpp/.clang-tidy"
+       "${CMAKE_SOURCE_DIR}/.clang-tidy" TLS_VERIFY ${TLS_VERIFY})
+
   # clang-tidy (use as clang-tidy;arguments)
   set(CMAKE_CXX_CLANG_TIDY
       ""
       CACHE STRING "clang-tidy binary and config")
+  # Automatically enable clang-tidy if STATIC_ANALYSIS is turned on
+  if(NOT CMAKE_CXX_CLANG_TIDY AND STATIC_ANALYSIS)
+    message(STATUS "STATIC_ANALYSIS is enabled. Turning on clang-tidy.")
+    set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+  endif()
 
   # Enable generating compile_commands.json to be used by tools
   set(CMAKE_EXPORT_COMPILE_COMMANDS
@@ -92,7 +110,7 @@ function(StandardConfig config_type)
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
   # Enable Format.cmake (https://github.com/TheLartians/Format.cmake)
-  set(FORMAT_CMAKE_VERSION "1.7.1")
+  set(FORMAT_CMAKE_VERSION "1.7.3")
   set(FORMAT_CMAKE_PATH
       "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
   if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
@@ -106,11 +124,10 @@ function(StandardConfig config_type)
   endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
   set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
   add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
-
-  # Download clang-format and clang-tidy
-  file(DOWNLOAD "${CODING_STANDARDS_ROOT}/cpp/.clang-format"
-       "${CMAKE_SOURCE_DIR}/.clang-format" TLS_VERIFY ${TLS_VERIFY})
-  file(DOWNLOAD "${CODING_STANDARDS_ROOT}/cpp/.clang-tidy"
-       "${CMAKE_SOURCE_DIR}/.clang-tidy" TLS_VERIFY ${TLS_VERIFY})
+  # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
+  if(STATIC_ANALYSIS)
+    message(STATUS "STATIC_ANALYSIS is enabled. Adding check-format to ALL.")
+    add_custom_target(check-format-all ALL DEPENDS check-format)
+  endif()
 
 endfunction(StandardConfig)
