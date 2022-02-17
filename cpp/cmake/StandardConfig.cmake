@@ -69,12 +69,14 @@ function(StandardConfig config_type)
 
   # clang-tidy (use as clang-tidy;arguments)
   set(CMAKE_CXX_CLANG_TIDY
-      ""
-      CACHE STRING "clang-tidy binary and config")
+    ""
+    CACHE STRING "clang-tidy binary and config")
   # Automatically enable clang-tidy if STATIC_ANALYSIS is turned on
   if(NOT CMAKE_CXX_CLANG_TIDY AND STATIC_ANALYSIS)
     message(STATUS "STATIC_ANALYSIS is enabled. Turning on clang-tidy.")
-    set(CMAKE_CXX_CLANG_TIDY "clang-tidy")
+    set(CMAKE_CXX_CLANG_TIDY
+      "clang-tidy"
+      CACHE STRING "clang-tidy binary and config" FORCE)
   endif()
 
   # Enable generating compile_commands.json to be used by tools
