@@ -45,19 +45,25 @@ function(StandardConfig config_type)
         PARENT_SCOPE)
   endif(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
 
-  # ASan / TSan
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  # ASan+LSan+UBsan / MSan / TSan
+  if(NOT ENABLE_TSAN AND NOT ENABLE_MSAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # ASan is automatically enabled in Debug builds, unless TSan or MSan is enabled
     set(ENABLE_ASAN TRUE)
-  endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  if(ENABLE_ASAN)
-    message("Enabling ASan")
-    set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak"
-        PARENT_SCOPE)
-  elseif(ENABLE_TSAN)
+  endif(NOT ENABLE_TSAN AND NOT ENABLE_MSAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
+  if(ENABLE_TSAN)
     message("Enabling TSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=thread"
+        PARENT_SCOPE)
+  elseif(ENABLE_MSAN)
+    message("Enabling MSan")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -fsanitize=memory"
+        PARENT_SCOPE)
+  elseif(ENABLE_ASAN)
+    message("Enabling ASan, LSan and UBSan")
+    set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
         PARENT_SCOPE)
   endif()
 
