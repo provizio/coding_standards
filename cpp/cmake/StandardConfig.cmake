@@ -43,6 +43,9 @@ function(StandardConfig config_type)
     set(CMAKE_CXX_COMPILER_LAUNCHER
         "${CCACHE}"
         PARENT_SCOPE)
+    set(CMAKE_C_COMPILER_LAUNCHER
+        "${CCACHE}"
+        PARENT_SCOPE)
   endif(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
 
   # ASan+LSan+UBsan / MSan / TSan
@@ -55,15 +58,24 @@ function(StandardConfig config_type)
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=thread"
         PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=thread"
+        PARENT_SCOPE)
   elseif(ENABLE_MSAN)
     message("Enabling MSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=memory"
         PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=memory"
+        PARENT_SCOPE)
   elseif(ENABLE_ASAN)
     message("Enabling ASan, LSan and UBSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
+        PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
         PARENT_SCOPE)
   endif()
 
@@ -76,11 +88,17 @@ function(StandardConfig config_type)
   # clang-tidy (use as clang-tidy;arguments)
   set(CMAKE_CXX_CLANG_TIDY
     ""
-    CACHE STRING "clang-tidy binary and config")
+    CACHE STRING "clang-tidy binary and config (C++)")
+  set(CMAKE_C_CLANG_TIDY
+    ""
+    CACHE STRING "clang-tidy binary and config (C)")
   # Automatically enable clang-tidy if STATIC_ANALYSIS is turned on
   if(NOT CMAKE_CXX_CLANG_TIDY AND STATIC_ANALYSIS)
     message(STATUS "STATIC_ANALYSIS is enabled. Turning on clang-tidy.")
     set(CMAKE_CXX_CLANG_TIDY
+      "clang-tidy"
+      CACHE STRING "clang-tidy binary and config" FORCE)
+    set(CMAKE_C_CLANG_TIDY
       "clang-tidy"
       CACHE STRING "clang-tidy binary and config" FORCE)
   endif()
@@ -93,11 +111,17 @@ function(StandardConfig config_type)
   # Common C++ settings
   if(SAFETY_CRITICAL)
     set(CMAKE_CXX_STANDARD
-        14
+        14                # As defined by Autosar
+        PARENT_SCOPE)
+    set(CMAKE_C_STANDARD
+        99                # As defined by MISRA
         PARENT_SCOPE)
   else()
     set(CMAKE_CXX_STANDARD
         17
+        PARENT_SCOPE)
+    set(CMAKE_C_STANDARD
+        11
         PARENT_SCOPE)
   endif(SAFETY_CRITICAL)
   set(CMAKE_CXX_STANDARD_REQUIRED
@@ -106,6 +130,10 @@ function(StandardConfig config_type)
   set(CMAKE_CXX_EXTENSIONS
       OFF
       PARENT_SCOPE)
+  set(C_STANDARD_REQUIRED
+      ON
+      PARENT_SCOPE)
+
   add_compile_options(-Wall -Wextra -pedantic -Werror)
 
   # Enable Conan (https://conan.io/)
