@@ -134,7 +134,12 @@ function(StandardConfig config_type)
       ON
       PARENT_SCOPE)
 
-  add_compile_options(-Wall -Wextra -pedantic -Werror)
+  if (NOT MSVC)
+    # pragmas can be needed for specific optimizations in some compilers while ignored in other
+    add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unknown-pragmas)
+  else()
+    add_compile_options(/W4 /WX /wd4068 /wd4996)
+  endif()
 
   # Enable Conan (https://conan.io/)
   if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
