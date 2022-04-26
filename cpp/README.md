@@ -83,3 +83,31 @@ making it easy to resolve Conan dependencies via CMake:
      ```
 
 Conan has to be [installed](https://pypi.org/project/conan/) in the system.
+
+## Unit Testing
+
+[CTest](https://cmake.org/cmake/help/latest/manual/ctest.1.html) is enabled by
+default. Add tests normally with [add_test](https://cmake.org/cmake/help/latest/command/add_test.html).
+
+### Frameworks
+
+Recommended unit testing frameworks:
+
+- C++: [Boost.Test](https://www.boost.org/doc/libs/1_79_0/libs/test/doc/html/index.html)
+  or [Google Test](https://github.com/google/googletest) (both available in Conan).
+- C: [Unity Test](https://github.com/provizio/Unity/tree/provizio)
+  or [CLove-Unit](https://github.com/fdefelici/clove-unit) (CLove-Unit is
+  available in Conan).
+
+### Code Coverage Analysis
+
+1. Enable code coverage support by setting CMake variable `ENABLE_COVERAGE=ON`
+  (f.e. by editing CMake Cache or specifying it when invoking CMake with
+  `-DENABLE_COVERAGE=ON`).
+2. Build the project and run unit tests.
+3. Build CMake target `code_coverage`. It succeeds in case 100% code coverage
+  is achieved and fails otherwise. It also prints its results and generates a
+  human-readable HTML report at `<cmake build directory>/code_coverage_report/`.
+  For suppressing not-testable code sections, use
+  [lcov exclusion markers](https://manpages.debian.org/unstable/lcov/geninfo.1.en.html).
+  Every exclusion must be commented to explain why it's required.

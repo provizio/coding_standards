@@ -19,6 +19,13 @@ if(NOT STATIC_ANALYSIS)
         CACHE STRING "Static analysis")
 endif(NOT STATIC_ANALYSIS)
 
+# Generating code coverage info is disabled by default
+if(NOT ENABLE_COVERAGE)
+  set(ENABLE_COVERAGE
+        "OFF"
+        CACHE STRING "Enable Code Coverage Checks")
+endif(NOT ENABLE_COVERAGE)
+
 function(StandardConfig config_type)
   set(CODING_STANDARDS_ROOT
       "https://raw.githubusercontent.com/provizio/coding_standards/master")
@@ -43,6 +50,9 @@ function(StandardConfig config_type)
     set(CMAKE_CXX_COMPILER_LAUNCHER
         "${CCACHE}"
         PARENT_SCOPE)
+    set(CMAKE_C_COMPILER_LAUNCHER
+        "${CCACHE}"
+        PARENT_SCOPE)
   endif(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
 
   # ASan+LSan+UBsan / MSan / TSan
@@ -55,15 +65,24 @@ function(StandardConfig config_type)
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=thread"
         PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=thread"
+        PARENT_SCOPE)
   elseif(ENABLE_MSAN)
     message("Enabling MSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=memory"
         PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=memory"
+        PARENT_SCOPE)
   elseif(ENABLE_ASAN)
     message("Enabling ASan, LSan and UBSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
+        PARENT_SCOPE)
+    set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
         PARENT_SCOPE)
   endif()
 
@@ -76,14 +95,44 @@ function(StandardConfig config_type)
   # clang-tidy (use as clang-tidy;arguments)
   set(CMAKE_CXX_CLANG_TIDY
     ""
-    CACHE STRING "clang-tidy binary and config")
+    CACHE STRING "clang-tidy binary and config (C++)")
+  set(CMAKE_C_CLANG_TIDY
+    ""
+    CACHE STRING "clang-tidy binary and config (C)")
   # Automatically enable clang-tidy if STATIC_ANALYSIS is turned on
   if(NOT CMAKE_CXX_CLANG_TIDY AND STATIC_ANALYSIS)
     message(STATUS "STATIC_ANALYSIS is enabled. Turning on clang-tidy.")
     set(CMAKE_CXX_CLANG_TIDY
       "clang-tidy"
       CACHE STRING "clang-tidy binary and config" FORCE)
+    set(CMAKE_C_CLANG_TIDY
+      "clang-tidy"
+      CACHE STRING "clang-tidy binary and config" FORCE)
   endif()
+
+  # Code Coverage (target 'code_coverage'), to be invoked after running all tests
+  if(ENABLE_COVERAGE)
+    if(BUILD_TESTING)
+      if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+          message("Enabling code coverage checking")
+          add_compile_options(--coverage)
+          add_link_options(--coverage)
+          add_custom_target(code_coverage
+            COMMAND lcov -c -d "${CMAKE_BINARY_DIR}" -o "${CMAKE_BINARY_DIR}/lcov.info" --exclude '/usr/include/*' --exclude '/usr/lib/*' --exclude '/usr/local/*'
+            COMMAND genhtml "${CMAKE_BINARY_DIR}/lcov.info" -o "${CMAKE_BINARY_DIR}/code_coverage_report" > "${CMAKE_BINARY_DIR}/genhtml.out" 2>&1
+            COMMAND cat "${CMAKE_BINARY_DIR}/genhtml.out"
+            COMMAND grep "lines.*100\.0\%" "${CMAKE_BINARY_DIR}/genhtml.out") # Requires 100% coverage
+        else(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+          message(WARNING "Can't enable code coverage checking as only GCC is supported")
+        endif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+      else(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(WARNING "Can't enable code coverage checking as only Debug builds are supported")
+      endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    else(BUILD_TESTING)
+      message(WARNING "Can't enable code coverage checking as BUILD_TESTING is off")
+    endif(BUILD_TESTING)
+  endif(ENABLE_COVERAGE)
 
   # Enable generating compile_commands.json to be used by tools
   set(CMAKE_EXPORT_COMPILE_COMMANDS
@@ -93,11 +142,17 @@ function(StandardConfig config_type)
   # Common C++ settings
   if(SAFETY_CRITICAL)
     set(CMAKE_CXX_STANDARD
-        14
+        14                # As defined by Autosar
+        PARENT_SCOPE)
+    set(CMAKE_C_STANDARD
+        99                # As defined by MISRA
         PARENT_SCOPE)
   else()
     set(CMAKE_CXX_STANDARD
         17
+        PARENT_SCOPE)
+    set(CMAKE_C_STANDARD
+        11
         PARENT_SCOPE)
   endif(SAFETY_CRITICAL)
   set(CMAKE_CXX_STANDARD_REQUIRED
@@ -106,7 +161,16 @@ function(StandardConfig config_type)
   set(CMAKE_CXX_EXTENSIONS
       OFF
       PARENT_SCOPE)
-  add_compile_options(-Wall -Wextra -pedantic -Werror)
+  set(C_STANDARD_REQUIRED
+      ON
+      PARENT_SCOPE)
+
+  if (NOT MSVC)
+    # pragmas can be needed for specific optimizations in some compilers while ignored in other
+    add_compile_options(-Wall -Wextra -pedantic -Werror -Wno-unknown-pragmas)
+  else()
+    add_compile_options(/W4 /WX /wd4068 /wd4996)
+  endif()
 
   # Enable Conan (https://conan.io/)
   if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
