@@ -31,7 +31,7 @@ if not os.path.isfile("setup.py"):
     raise RuntimeError("A `setup.py` file was not found. According to coding standards, "
                        "a setup file must be present in the root folder of the project.")
 
-# 3 Check setup.py exists
+# 3 Check README file exists
 if not glob.glob("*README*"):
     raise RuntimeError("A `README` file was not found. According to coding standards, a README"
                        " file must be present in the root folder of the project.")
