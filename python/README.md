@@ -1,8 +1,6 @@
-
-
 # Python Coding Standards Repo
 
-This repository serves as a reference for a standard python package/project within Provizio. It contains sample files 
+This repository contains scripts for checking coding standards and also serves as a reference for a standard python package/project within Provizio. It contains sample files 
 such as:
 - setup.py
 - requirements.txt
@@ -54,15 +52,12 @@ It is recommended that python code follows Google's pyguide code style guideline
 Refer to [Coding Standards](https://provizio.atlassian.net/wiki/spaces/PROVIZIO/pages/839155743
 ) page in Provizio's Confluence, for more info on the code style requirements.
 
-
-
 ### Packaging
 It is highly recommended to use setuptools for packaging and deployment. A sample `setup.py` file is included in this repo
 for reference. 
 
 ### Environments
 It is recommended to use Conda (Miniconda or Anaconda) package manager for virtual environments.
-
 
 ### Testing
 Unit tests are recommended to be part of any python project/package. The frameworks unittest
