@@ -12,6 +12,24 @@ such as:
 More details on the Python coding standards used in Provizio can be found on the Confluence page:
 https://provizio.atlassian.net/wiki/spaces/PROVIZIO/pages/839155743
 
+## Checking compliance with Coding Standards
+
+Usage: <br/>
+
+To check compliance with the Provizio Python coding standards, simply download
+and place the script `coding_standards_check.py` inside the root folder of your project.
+
+Run the script with one argument - the sources folder.
+
+e.g.
+```shell
+python coding_standards_check.py src
+```
+
+**The script will download necessary files to perform all checks.**
+
+<br/>
+
 ### Project Folder Layout
 
 A project folder should have the following layout in general (from root/):
