@@ -2,7 +2,7 @@
 File: code_standards_check.py
 
 Description:
-    This scrip checks if a python codebase is compliant with Provizio code standards.
+    This script checks if a python codebase is compliant with Provizio code standards.
     The script accepts the sources dir as an argument
 
 Copyright Provizio Ltd., 2022
