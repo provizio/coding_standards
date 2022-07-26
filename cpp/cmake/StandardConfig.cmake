@@ -181,13 +181,13 @@ function(StandardConfig config_type)
   endif()
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-  # Enable Format.cmake (https://github.com/TheLartians/Format.cmake)
+  # Enable Format.cmake (https://github.com/provizio/Format.cmake)
   set(FORMAT_CMAKE_VERSION "1.7.3")
   set(FORMAT_CMAKE_PATH
       "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
   if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
     set(FORMAT_CMAKE_DOWNLOAD_URL
-        "https://github.com/TheLartians/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
+        "https://github.com/provizio/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
     )
     file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
          TLS_VERIFY ${TLS_VERIFY})
