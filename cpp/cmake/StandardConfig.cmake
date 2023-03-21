@@ -26,6 +26,11 @@ if(NOT ENABLE_COVERAGE)
         CACHE STRING "Enable Code Coverage Checks")
 endif(NOT ENABLE_COVERAGE)
 
+# Format checks enabled by default
+set(ENABLE_CHECK_FORMAT
+  "ON"
+  CACHE STRING "Enable Format Checks")
+
 function(StandardConfig config_type)
   set(CODING_STANDARDS_ROOT
       "https://raw.githubusercontent.com/provizio/coding_standards/master")
@@ -181,25 +186,27 @@ function(StandardConfig config_type)
   endif()
   include(${CMAKE_BINARY_DIR}/conan.cmake)
 
-  # Enable Format.cmake (https://github.com/provizio/Format.cmake)
-  set(FORMAT_CMAKE_VERSION "1.7.3")
-  set(FORMAT_CMAKE_PATH
-      "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
-  if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
-    set(FORMAT_CMAKE_DOWNLOAD_URL
-        "https://github.com/provizio/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
-    )
-    file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
-         TLS_VERIFY ${TLS_VERIFY})
-    execute_process(COMMAND tar -xf "${FORMAT_CMAKE_PATH}.tar.gz" -C
-                            "${CMAKE_BINARY_DIR}")
-  endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
-  set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
-  add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
-  # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
-  if(STATIC_ANALYSIS)
-    message(STATUS "STATIC_ANALYSIS is enabled. Adding check-format to ALL.")
-    add_custom_target(check-format-all ALL DEPENDS check-format)
-  endif()
+  # Enable Format.cmake (https://github.com/provizio/Format.cmake), if ON
+  if(ENABLE_CHECK_FORMAT)
+    set(FORMAT_CMAKE_VERSION "1.7.3")
+    set(FORMAT_CMAKE_PATH
+        "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
+    if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+      set(FORMAT_CMAKE_DOWNLOAD_URL
+          "https://github.com/provizio/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
+      )
+      file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
+          TLS_VERIFY ${TLS_VERIFY})
+      execute_process(COMMAND tar -xf "${FORMAT_CMAKE_PATH}.tar.gz" -C
+                              "${CMAKE_BINARY_DIR}")
+    endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+    set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
+    add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
+    # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
+    if(STATIC_ANALYSIS)
+      message(STATUS "STATIC_ANALYSIS is enabled. Adding check-format to ALL.")
+      add_custom_target(check-format-all ALL DEPENDS check-format)
+    endif()
+  endif(ENABLE_CHECK_FORMAT)
 
 endfunction(StandardConfig)
