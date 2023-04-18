@@ -84,11 +84,21 @@ function(StandardConfig config_type)
   elseif(ENABLE_ASAN)
     message("Enabling ASan, LSan and UBSan")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
+        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined"
         PARENT_SCOPE)
     set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=leak -fsanitize=undefined"
+        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined"
         PARENT_SCOPE)
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_CXX_FLAGS
+        "${CMAKE_CXX_FLAGS} -fsanitize=leak"
+        PARENT_SCOPE)
+    endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+      set(CMAKE_C_FLAGS
+        "${CMAKE_C_FLAGS} -fsanitize=leak"
+        PARENT_SCOPE)
+    endif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   endif()
 
   # Download clang-format and clang-tidy configs
