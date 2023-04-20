@@ -198,7 +198,9 @@ function(StandardConfig config_type)
 
   # Enable Format.cmake (https://github.com/provizio/Format.cmake), if ON
   if(ENABLE_CHECK_FORMAT)
-    set(FORMAT_CMAKE_VERSION "1.7.3")
+    if(NOT FORMAT_CMAKE_VERSION)
+      set(FORMAT_CMAKE_VERSION "1.7.3")
+    endif(NOT FORMAT_CMAKE_VERSION)
     set(FORMAT_CMAKE_PATH
         "${CMAKE_BINARY_DIR}/Format.cmake-${FORMAT_CMAKE_VERSION}")
     if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
