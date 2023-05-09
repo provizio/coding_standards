@@ -68,36 +68,28 @@ function(StandardConfig config_type)
   if(ENABLE_TSAN)
     message("Enabling TSan")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=thread"
-        PARENT_SCOPE)
+        "${CMAKE_CXX_FLAGS} -fsanitize=thread")
     set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -fsanitize=thread"
-        PARENT_SCOPE)
+        "${CMAKE_C_FLAGS} -fsanitize=thread")
   elseif(ENABLE_MSAN)
     message("Enabling MSan")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=memory"
-        PARENT_SCOPE)
+        "${CMAKE_CXX_FLAGS} -fsanitize=memory")
     set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -fsanitize=memory"
-        PARENT_SCOPE)
+        "${CMAKE_C_FLAGS} -fsanitize=memory")
   elseif(ENABLE_ASAN)
     message("Enabling ASan, LSan and UBSan")
     set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined"
-        PARENT_SCOPE)
+        "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined")
     set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined"
-        PARENT_SCOPE)
+        "${CMAKE_C_FLAGS} -fsanitize=address -fsanitize=undefined")
     if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
       set(CMAKE_CXX_FLAGS
-        "${CMAKE_CXX_FLAGS} -fsanitize=leak"
-        PARENT_SCOPE)
+        "${CMAKE_CXX_FLAGS} -fsanitize=leak")
     endif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
       set(CMAKE_C_FLAGS
-        "${CMAKE_C_FLAGS} -fsanitize=leak"
-        PARENT_SCOPE)
+        "${CMAKE_C_FLAGS} -fsanitize=leak")
     endif(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   endif()
 
@@ -220,5 +212,9 @@ function(StandardConfig config_type)
       add_custom_target(check-format-all ALL DEPENDS check-format)
     endif()
   endif(ENABLE_CHECK_FORMAT)
+
+  # Expose config values to the parent scope
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}" PARENT_SCOPE)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" PARENT_SCOPE)
 
 endfunction(StandardConfig)
