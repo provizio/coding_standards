@@ -199,18 +199,27 @@ function(StandardConfig config_type)
       set(FORMAT_CMAKE_DOWNLOAD_URL
           "https://github.com/provizio/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
       )
+      message("Downloading ${FORMAT_CMAKE_DOWNLOAD_URL}...")
       file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
           TLS_VERIFY ${TLS_VERIFY})
+      message("Extracting ${FORMAT_CMAKE_PATH}.tar.gz} to ${CMAKE_BINARY_DIR}...")
       execute_process(COMMAND tar -xf "${FORMAT_CMAKE_PATH}.tar.gz" -C
                               "${CMAKE_BINARY_DIR}")
     endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
-    set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
-    add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
-    # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
-    if(STATIC_ANALYSIS)
-      message(STATUS "STATIC_ANALYSIS is enabled. Adding check-format to ALL.")
-      add_custom_target(check-format-all ALL DEPENDS check-format)
-    endif()
+
+    if(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+      message(WARNING "Failed to download Format.cmake. ENABLE_CHECK_FORMAT will be disabled!")
+      set(ENABLE_CHECK_FORMAT OFF)
+    else(NOT EXISTS "${FORMAT_CMAKE_PATH}")
+      set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
+      add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
+
+      # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
+      if(STATIC_ANALYSIS)
+        message(STATUS "STATIC_ANALYSIS is enabled. Adding check-format to ALL.")
+        add_custom_target(check-format-all ALL DEPENDS check-format)
+      endif()
+    endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
   endif(ENABLE_CHECK_FORMAT)
 
   # Expose config values to the parent scope
