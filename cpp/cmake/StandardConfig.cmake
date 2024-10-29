@@ -148,11 +148,12 @@ function(StandardConfig config_type)
 
   # Common C++ settings
   if(SAFETY_CRITICAL)
+    # As defined by MISRA 2023 (https://misra.org.uk/misra-cpp2023-released-including-hardcopy/)
     set(CMAKE_CXX_STANDARD
-        14                # As defined by Autosar
+        17
         PARENT_SCOPE)
     set(CMAKE_C_STANDARD
-        99                # As defined by MISRA
+        99
         PARENT_SCOPE)
   else()
     set(CMAKE_CXX_STANDARD
