@@ -73,30 +73,42 @@ statement in order to configure conan:
       include(${CMAKE_BINARY_DIR}/Conan.cmake)
      ```
 
-  2. Create conanfile.py in root directory, example
+  2. Create conanfile in root directory, example  
+      1. conanfile.py - Python version is more powerful and flexible
 
-     ```Python
-      import os
+          ```Python
+            import os
 
-      from conan import ConanFile
-      from conan.tools.cmake import cmake_layout
-      from conan.tools.files import copy
+            from conan import ConanFile
+            from conan.tools.cmake import cmake_layout
+            from conan.tools.files import copy
 
 
-      class ProvizioExample(ConanFile):
-          settings = "os", "compiler", "build_type", "arch"
-          generators = "CMakeDeps", "CMakeToolchain"
+            class ProvizioExample(ConanFile):
+                settings = "os", "compiler", "build_type", "arch"
+                generators = "CMakeDeps", "CMakeToolchain"
 
-          def configure(self):
-              self.options["boost*"].without_test = True
+                def configure(self):
+                    self.options["boost*"].without_test = True
 
-          def requirements(self):
-              self.requires("boost/1.74.0")
-              self.requires("ms-gsl/4.1.0")
+                def requirements(self):
+                    self.requires("boost/1.74.0")
+                    self.requires("ms-gsl/4.1.0")
 
-          def layout(self):
-              cmake_layout(self)
-     ```
+                def layout(self):
+                    cmake_layout(self)
+          ```
+      2. conanfile.txt - txt version is lighter and cleaner
+
+          ```text
+            [requires]
+            boost/1.74.0
+            ms-gsl/4.1.0
+
+            [generators]
+            CMakeDeps
+            CMakeToolchain
+          ```
 
   2. Make your CMake projects (libraries and executables) depend on them in standard 'modern cmake style', example:
 
