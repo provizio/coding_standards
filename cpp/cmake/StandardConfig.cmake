@@ -176,6 +176,8 @@ function(StandardConfig config_type)
   if (NOT MSVC)
     # pragmas can be needed for specific optimizations in some compilers while ignored in other
     add_compile_options(-Wall -Wextra -pedantic)
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:-Werror>")
+    add_compile_options("$<$<COMPILE_LANGUAGE:C>:-Wno-unknown-pragmas>")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Werror>")
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wno-unknown-pragmas>")
     add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:-Werror>" "$<$<COMPILE_LANGUAGE:CUDA>:all-warnings>")
