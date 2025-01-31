@@ -108,6 +108,9 @@ statement in order to configure conan:
             [generators]
             CMakeDeps
             CMakeToolchain
+
+            [layout]
+            cmake_layout
           ```
 
   2. Make your CMake projects (libraries and executables) depend on them in standard 'modern cmake style', example:
