@@ -185,15 +185,6 @@ function(StandardConfig config_type)
     add_compile_options(/W4 /WX /wd4068 /wd4996)
   endif()
 
-  # Enable Conan (https://conan.io/)
-  if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake...")
-    file(DOWNLOAD
-         "https://github.com/conan-io/cmake-conan/raw/0.17.0/conan.cmake"
-         "${CMAKE_BINARY_DIR}/conan.cmake" TLS_VERIFY ${TLS_VERIFY})
-  endif()
-  include(${CMAKE_BINARY_DIR}/conan.cmake)
-
   # Enable Format.cmake (https://github.com/provizio/Format.cmake), if ON
   if(ENABLE_CHECK_FORMAT)
     if(NOT FORMAT_CMAKE_VERSION)
