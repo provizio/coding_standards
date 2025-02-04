@@ -59,27 +59,69 @@ clang-tidy is capable of automatically fixing some of the detected issues: use
 
 ## Conan
 
-Including `StandardConfig.cmake` also includes [cmake-conan](https://github.com/conan-io/cmake-conan),
-making it easy to resolve Conan dependencies via CMake:
+Including `StandardConfig.cmake` does not include conan cmake integration since conan2 tries to decouple itself from build tools.  
+Setup:  
 
-  1. Pull the dependecies, f.e.
+  1. In the root CMakeLists.txt of your project add these lines BEFORE the `project`
+statement in order to configure conan:
 
      ```CMake
-     conan_cmake_run(REQUIRES 
-                         boost/1.76.0
-                         ms-gsl/3.1.0
-                    BASIC_SETUP
-                    CMAKE_TARGETS
-                    BUILD missing)
+      # Conan
+      file(DOWNLOAD
+          "https://raw.githubusercontent.com/provizio/coding_standards/master/cpp/cmake/Conan.cmake"
+          "${CMAKE_BINARY_DIR}/Conan.cmake" TLS_VERIFY ON)
+      include(${CMAKE_BINARY_DIR}/Conan.cmake)
      ```
 
-  2. Make your CMake projects (libraries and executables) depend on them, f.e.:
+  2. Create conanfile in root directory, example  
+      1. conanfile.py - Python version is more powerful and flexible
+
+          ```Python
+            import os
+
+            from conan import ConanFile
+            from conan.tools.cmake import cmake_layout
+            from conan.tools.files import copy
+
+
+            class ProvizioExample(ConanFile):
+                settings = "os", "compiler", "build_type", "arch"
+                generators = "CMakeDeps", "CMakeToolchain"
+
+                def configure(self):
+                    self.options["boost*"].without_test = True
+
+                def requirements(self):
+                    self.requires("boost/1.74.0")
+                    self.requires("ms-gsl/4.1.0")
+
+                def layout(self):
+                    cmake_layout(self)
+          ```
+      2. conanfile.txt - txt version is lighter and cleaner
+
+          ```text
+            [requires]
+            boost/1.74.0
+            ms-gsl/4.1.0
+
+            [generators]
+            CMakeDeps
+            CMakeToolchain
+
+            [layout]
+            cmake_layout
+          ```
+
+  2. Make your CMake projects (libraries and executables) depend on them in standard 'modern cmake style', example:
 
      ```CMake
-     target_link_libraries(your_library_or_executable
-          CONAN_PKG::boost
-          CONAN_PKG::ms-gsl
-     )
+      find_package(Boost REQUIRED)
+      find_package(Microsoft.GSL REQUIRED)
+      target_link_libraries(${LIB_NAME}
+          boost::boost
+          Microsoft.GSL::GSL
+      )
      ```
 
 Conan has to be [installed](https://pypi.org/project/conan/) in the system.
