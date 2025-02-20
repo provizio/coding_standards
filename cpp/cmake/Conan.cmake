@@ -8,10 +8,13 @@ if(NOT CMAKE_BUILD_TYPE)
         CACHE STRING "Choose the type of build." FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+set(CONAN_COMPILER "gcc")
+set(CONAN_COMPILER_VERSION "9")
+
 message(STATUS "Executing conan install...")
 execute_process(
     COMMAND conan install
-        --settings "build_type=${CMAKE_BUILD_TYPE}"
+        --profile:all=${CONAN_COMPILER}-${CONAN_COMPILER_VERSION}-${CMAKE_BUILD_TYPE}
         --output-folder "${CMAKE_BINARY_DIR}"
         --conf "tools.system.package_manager:mode=install"
         --conf "tools.cmake.cmake_layout:build_folder=."
