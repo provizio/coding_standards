@@ -18,9 +18,9 @@ StandardConfig(<SAFETY_CRITICAL / NON_SAFETY_CRITICAL>) # Choose the configurati
 
 ## Language Standard
 
-C++17 (language extensions not allowed) for NON_SAFETY_CRITICAL and C++14 for
-SAFETY_CRITICAL projects (as AUTOSAR / MISRA standards for C++17 are not
-yet available).
+- C++17 (language extensions not allowed) both NON_SAFETY_CRITICAL and SAFETY_CRITICAL projects as by
+AUTOSAR / MISRA standards for C++.
+- C11 for NON_SAFETY_CRITICAL and C99 for SAFETY_CRITICAL projects.
 
 ## Warnings / Errors Config
 
