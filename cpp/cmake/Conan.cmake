@@ -11,7 +11,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 message(STATUS "Executing conan install...")
 execute_process(
     COMMAND conan install
-        --settings "build_type=${CMAKE_BUILD_TYPE}"
+        --settings:all=build_type=${CMAKE_BUILD_TYPE}
         --output-folder "${CMAKE_BINARY_DIR}"
         --conf "tools.system.package_manager:mode=install"
         --conf "tools.cmake.cmake_layout:build_folder=."
