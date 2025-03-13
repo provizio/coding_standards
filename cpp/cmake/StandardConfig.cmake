@@ -209,7 +209,7 @@ function(StandardConfig config_type)
       set(ENABLE_CHECK_FORMAT OFF)
     else(NOT EXISTS "${FORMAT_CMAKE_PATH}")
       set(FORMAT_SKIP_CMAKE YES CACHE BOOL "" FORCE)
-      add_subdirectory("${FORMAT_CMAKE_PATH}" EXCLUDE_FROM_ALL)
+      add_subdirectory("${FORMAT_CMAKE_PATH}" "${CMAKE_BINARY_DIR}/format_cmake" EXCLUDE_FROM_ALL)
 
       # Automatically enable clang-format checks if STATIC_ANALYSIS is turned on
       if(STATIC_ANALYSIS)
