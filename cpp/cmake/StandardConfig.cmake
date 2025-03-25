@@ -19,6 +19,13 @@ if(NOT STATIC_ANALYSIS)
         CACHE STRING "Static analysis")
 endif(NOT STATIC_ANALYSIS)
 
+# Building tests is disabled by default
+if(NOT BUILD_TESTING)
+  set(BUILD_TESTING
+        "OFF"
+        CACHE STRING "Enable Building Tests")
+endif(NOT BUILD_TESTING)
+
 # Generating code coverage info is disabled by default
 if(NOT ENABLE_COVERAGE)
   set(ENABLE_COVERAGE
