@@ -51,7 +51,7 @@ function(StandardConfig config_type)
   # ccache
   find_program(CCACHE ccache)
   if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER)
-    message("ccache found!")
+    message(STATUS "ccache found!")
     set(CMAKE_CXX_COMPILER_LAUNCHER
         "${CCACHE}"
         PARENT_SCOPE)
@@ -66,19 +66,19 @@ function(StandardConfig config_type)
     set(ENABLE_ASAN TRUE)
   endif(NOT ENABLE_TSAN AND NOT ENABLE_MSAN AND CMAKE_BUILD_TYPE STREQUAL "Debug")
   if(ENABLE_TSAN)
-    message("Enabling TSan")
+    message(STATUS "Enabling TSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=thread")
     set(CMAKE_C_FLAGS
         "${CMAKE_C_FLAGS} -fsanitize=thread")
   elseif(ENABLE_MSAN)
-    message("Enabling MSan")
+    message(STATUS "Enabling MSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=memory")
     set(CMAKE_C_FLAGS
         "${CMAKE_C_FLAGS} -fsanitize=memory")
   elseif(ENABLE_ASAN)
-    message("Enabling ASan, LSan and UBSan")
+    message(STATUS "Enabling ASan, LSan and UBSan")
     set(CMAKE_CXX_FLAGS
         "${CMAKE_CXX_FLAGS} -fsanitize=address -fsanitize=undefined")
     set(CMAKE_C_FLAGS
@@ -122,7 +122,7 @@ function(StandardConfig config_type)
     if(BUILD_TESTING)
       if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
-          message("Enabling code coverage checking")
+          message(STATUS "Enabling code coverage checking")
           add_compile_options(--coverage)
           add_link_options(--coverage)
           add_custom_target(code_coverage
@@ -196,10 +196,10 @@ function(StandardConfig config_type)
       set(FORMAT_CMAKE_DOWNLOAD_URL
           "https://github.com/provizio/Format.cmake/archive/refs/tags/v${FORMAT_CMAKE_VERSION}.tar.gz"
       )
-      message("Downloading ${FORMAT_CMAKE_DOWNLOAD_URL}...")
+      message(STATUS "Downloading ${FORMAT_CMAKE_DOWNLOAD_URL}...")
       file(DOWNLOAD "${FORMAT_CMAKE_DOWNLOAD_URL}" "${FORMAT_CMAKE_PATH}.tar.gz"
           TLS_VERIFY ${TLS_VERIFY})
-      message("Extracting ${FORMAT_CMAKE_PATH}.tar.gz} to ${CMAKE_BINARY_DIR}...")
+      message(STATUS "Extracting ${FORMAT_CMAKE_PATH}.tar.gz} to ${CMAKE_BINARY_DIR}...")
       execute_process(COMMAND tar -xf "${FORMAT_CMAKE_PATH}.tar.gz" -C
                               "${CMAKE_BINARY_DIR}")
     endif(NOT EXISTS "${FORMAT_CMAKE_PATH}")
