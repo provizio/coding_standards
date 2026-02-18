@@ -9,8 +9,9 @@ statement in order to import the configs and configure your CMake project:
 
 ```CMake
 # Standard Config
+set(CODING_STANDARDS_VERSION "master" CACHE STRING "coding_standards version tag")
 file(DOWNLOAD
-     "https://raw.githubusercontent.com/provizio/coding_standards/master/cpp/cmake/StandardConfig.cmake"
+     "https://raw.githubusercontent.com/provizio/coding_standards/${CODING_STANDARDS_VERSION}/cpp/cmake/StandardConfig.cmake"
      "${CMAKE_BINARY_DIR}/StandardConfig.cmake" TLS_VERIFY ON)
 include(${CMAKE_BINARY_DIR}/StandardConfig.cmake)
 StandardConfig(<SAFETY_CRITICAL / NON_SAFETY_CRITICAL>) # Choose the configuration type
