@@ -185,7 +185,7 @@ function(StandardConfig config_type)
         add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wno-unknown-pragmas>")
         add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:-Werror>" "$<$<COMPILE_LANGUAGE:CUDA>:all-warnings>")
     else()
-        add_compile_options(/W4 /WX /wd4068 /wd4996)
+        add_compile_options(/W4 /WX /EHsc /wd4068 /wd4996)
     endif()
 
     # Enable Format.cmake (https://github.com/provizio/Format.cmake), if ON
