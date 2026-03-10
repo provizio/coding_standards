@@ -74,17 +74,20 @@ statement in order to configure conan:
       include(${CMAKE_BINARY_DIR}/Conan.cmake)
      ```
 
-  2. Create a `conanfile.py` in the root directory. The Python format is required
+  2. **Migration note**: If you are upgrading from a previous version of
+     `Conan.cmake` that used `conanfile.txt` or a `conanfile.py` without the
+     flat layout override, you must switch to a `conanfile.py` with the
+     `layout()` override shown below. The old `conanfile.txt` format is no
+     longer supported as it cannot configure the required flat build layout.
+
+     Create a `conanfile.py` in the root directory. The Python format is required
      because `Conan.cmake` expects a flat build layout (`build/generators/`
      instead of `build/Debug/generators/`), which can only be configured by
      overriding `self.folders` in the `layout()` method. Example:
 
      ```Python
-      import os
-
       from conan import ConanFile
       from conan.tools.cmake import cmake_layout
-      from conan.tools.files import copy
 
 
       class ProvizioExample(ConanFile):
