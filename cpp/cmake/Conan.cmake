@@ -28,4 +28,11 @@ if(CONAN_RETURN_CODE AND NOT CONAN_RETURN_CODE EQUAL "0")
     message(FATAL_ERROR "conan install failed: ${CONAN_RETURN_CODE}")
 endif(CONAN_RETURN_CODE AND NOT CONAN_RETURN_CODE EQUAL "0")
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/generators/conan_toolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake")
+if(NOT EXISTS "${CMAKE_TOOLCHAIN_FILE}")
+    message(FATAL_ERROR
+        "Expected Conan toolchain file not found at '${CMAKE_TOOLCHAIN_FILE}'. "
+        "Ensure your conanfile.py defines a layout() that flattens generators "
+        "into the 'generators' subdirectory of the CMake build folder. See: "
+        "https://github.com/provizio/coding_standards/blob/master/cpp/README.md#conan")
+endif()

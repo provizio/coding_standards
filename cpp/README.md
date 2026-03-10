@@ -74,47 +74,43 @@ statement in order to configure conan:
       include(${CMAKE_BINARY_DIR}/Conan.cmake)
      ```
 
-  2. Create conanfile in root directory, example  
-      1. conanfile.py - Python version is more powerful and flexible
+  2. **Migration note**: If you are upgrading from a previous version of
+     `Conan.cmake` that used `conanfile.txt` or a `conanfile.py` without the
+     flat layout override, you must switch to a `conanfile.py` with the
+     `layout()` override shown below. The old `conanfile.txt` format is no
+     longer supported as it cannot configure the required flat build layout.
 
-          ```Python
-            import os
+     Create a `conanfile.py` in the root directory. The Python format is required
+     because `Conan.cmake` expects a flat build layout (`build/generators/`
+     instead of `build/Debug/generators/`), which can only be configured by
+     overriding `self.folders` in the `layout()` method. Example:
 
-            from conan import ConanFile
-            from conan.tools.cmake import cmake_layout
-            from conan.tools.files import copy
+     ```Python
+      from conan import ConanFile
+      from conan.tools.cmake import cmake_layout
 
 
-            class ProvizioExample(ConanFile):
-                settings = "os", "compiler", "build_type", "arch"
-                generators = "CMakeDeps", "CMakeToolchain"
+      class ProvizioExample(ConanFile):
+          settings = "os", "compiler", "build_type", "arch"
+          generators = "CMakeDeps", "CMakeToolchain"
 
-                def configure(self):
-                    self.options["boost*"].without_test = True
+          def configure(self):
+              self.options["boost*"].without_test = True
 
-                def requirements(self):
-                    self.requires("boost/1.74.0")
-                    self.requires("ms-gsl/4.1.0")
+          def requirements(self):
+              self.requires("boost/1.74.0")
+              self.requires("ms-gsl/4.1.0")
 
-                def layout(self):
-                    cmake_layout(self)
-          ```
-      2. conanfile.txt - txt version is lighter and cleaner
+          def layout(self):
+              cmake_layout(self)
+              # Required: flatten build layout so Conan.cmake finds the toolchain.
+              # Also keeps VS Code CMake presets and manual builds consistent
+              # (single build/ directory, no build/Debug or build/Release subdirs).
+              self.folders.build = "."
+              self.folders.generators = "generators"
+     ```
 
-          ```text
-            [requires]
-            boost/1.74.0
-            ms-gsl/4.1.0
-
-            [generators]
-            CMakeDeps
-            CMakeToolchain
-
-            [layout]
-            cmake_layout
-          ```
-
-  2. Make your CMake projects (libraries and executables) depend on them in standard 'modern cmake style', example:
+  3. Make your CMake projects (libraries and executables) depend on them in standard 'modern cmake style', example:
 
      ```CMake
       find_package(Boost REQUIRED)
