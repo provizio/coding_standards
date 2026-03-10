@@ -28,4 +28,4 @@ if(CONAN_RETURN_CODE AND NOT CONAN_RETURN_CODE EQUAL "0")
     message(FATAL_ERROR "conan install failed: ${CONAN_RETURN_CODE}")
 endif(CONAN_RETURN_CODE AND NOT CONAN_RETURN_CODE EQUAL "0")
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/generators/conan_toolchain.cmake")
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/generators/conan_toolchain.cmake")
