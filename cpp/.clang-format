@@ -1,6 +1,13 @@
 BasedOnStyle: Microsoft
 
 NamespaceIndentation: All
+# Pin SpacesBeforeTrailingComments to 2 so all clang-format versions produce
+# identical output regardless of how the Microsoft base style's defaults drift.
+# Older clang-format (≤13) defaulted this to 2; newer (≥14) defaults to 1.
+# Without this pin a developer on a recent clang-format produces 1-space output
+# locally while CI on an older clang-format flags those same lines for needing
+# 2 spaces — and vice-versa.
+SpacesBeforeTrailingComments: 2
 
 ---
 Language: CSharp
