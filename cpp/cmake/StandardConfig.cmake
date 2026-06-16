@@ -32,8 +32,18 @@ set(ENABLE_CHECK_FORMAT
   CACHE STRING "Enable Format Checks")
 
 function(StandardConfig config_type)
+  # Pull downloaded configs (.clang-format, .clang-tidy) from the same ref the
+  # consumer pinned via CODING_STANDARDS_VERSION, falling back to master when
+  # unset. Without this, a project that pins CODING_STANDARDS_VERSION still gets
+  # master's configs at configure time, so a master edit silently changes every
+  # consumer's required formatting / tidy checks (non-reproducible builds).
+  if(DEFINED CODING_STANDARDS_VERSION AND CODING_STANDARDS_VERSION)
+    set(_coding_standards_ref "${CODING_STANDARDS_VERSION}")
+  else()
+    set(_coding_standards_ref "master")
+  endif()
   set(CODING_STANDARDS_ROOT
-      "https://raw.githubusercontent.com/provizio/coding_standards/master")
+      "https://raw.githubusercontent.com/provizio/coding_standards/${_coding_standards_ref}")
   set(TLS_VERIFY ON)
 
   # Check the configuration
