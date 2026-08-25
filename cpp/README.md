@@ -35,6 +35,12 @@ gets the closest to be a standard: Standard Library and
 [Boost](https://www.boost.org/). It's very simple: everything is `lower_case`
 except macros.
 
+Private and protected data members may optionally carry a trailing underscore
+(`config_`, `debug_`) to distinguish them from constructor parameters and local
+variables. This is permitted, not required: both `config_` and `config` are
+accepted, so projects are free to adopt the convention or not. The name must
+still be `lower_case` either way, so `Config_` remains an error.
+
 The formatting style is based on `clang-format`-defined Microsoft style.
 
 ### clang-format
