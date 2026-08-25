@@ -127,8 +127,12 @@ function(StandardConfig config_type)
     # libstdc++ headers than compilation, or fail to find them at all.
     # --gcc-install-dir is only understood by clang-tidy 18 and newer; older
     # releases reject it outright, so the version is checked before adding it.
-    # The result is applied as a regular variable rather than to the cache entry
-    # so that repeated configures cannot accumulate duplicate flags.
+    # The first element of CMAKE_<LANG>_CLANG_TIDY is taken to be the clang-tidy
+    # binary; if a wrapper script stands in its place the version probe simply
+    # fails to match and the pin is left unapplied.
+    # The result is applied as a regular variable rather than to the cache entry,
+    # and only if not already present, so that neither repeated configures nor a
+    # nested StandardConfig() call can accumulate duplicate flags.
     foreach(LANG C CXX)
         if(CMAKE_${LANG}_CLANG_TIDY AND CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU")
             list(GET CMAKE_${LANG}_CLANG_TIDY 0 CLANG_TIDY_BINARY)
@@ -151,11 +155,13 @@ function(StandardConfig config_type)
                AND CLANG_TIDY_VERSION_MATCH
                AND CMAKE_MATCH_1 GREATER_EQUAL 18)
                 get_filename_component(GCC_INSTALL_DIR "${GCC_LIBGCC_FILE}" DIRECTORY)
-                message(STATUS
-                    "Pinning ${LANG} clang-tidy to GCC installation ${GCC_INSTALL_DIR}")
-                set(CMAKE_${LANG}_CLANG_TIDY
-                    "${CMAKE_${LANG}_CLANG_TIDY};--extra-arg=--gcc-install-dir=${GCC_INSTALL_DIR}"
-                    PARENT_SCOPE)
+                if(NOT "${CMAKE_${LANG}_CLANG_TIDY}" MATCHES "--gcc-install-dir=")
+                    message(STATUS
+                        "Pinning ${LANG} clang-tidy to GCC installation ${GCC_INSTALL_DIR}")
+                    set(CMAKE_${LANG}_CLANG_TIDY
+                        "${CMAKE_${LANG}_CLANG_TIDY};--extra-arg=--gcc-install-dir=${GCC_INSTALL_DIR}"
+                        PARENT_SCOPE)
+                endif()
             endif()
         endif(CMAKE_${LANG}_CLANG_TIDY AND CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU")
     endforeach(LANG C CXX)

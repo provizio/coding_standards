@@ -39,7 +39,12 @@ Private and protected data members may optionally carry a trailing underscore
 (`config_`, `debug_`) to distinguish them from constructor parameters and local
 variables. This is permitted, not required: both `config_` and `config` are
 accepted, so projects are free to adopt the convention or not. The name must
-still be `lower_case` either way, so `Config_` remains an error.
+still be `lower_case` either way, so `Config_` remains an error. Exactly one
+trailing underscore is allowed: `config__` is still an error.
+
+This exception relies on clang-tidy's `IgnoredRegexp` option, introduced in
+clang-tidy 12. clang-tidy 11 and older silently ignore it and keep rejecting
+`config_`, so use clang-tidy 12 or newer if your project adopts the convention.
 
 The formatting style is based on `clang-format`-defined Microsoft style.
 
