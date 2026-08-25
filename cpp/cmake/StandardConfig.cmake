@@ -120,6 +120,46 @@ function(StandardConfig config_type)
             CACHE STRING "clang-tidy binary and config" FORCE)
     endif()
 
+    # Pin clang-tidy to the same GCC installation that compiles the code. Left to
+    # itself clang-tidy picks the newest GCC on the system, which is not
+    # necessarily the one used for the build - Jetson images routinely ship
+    # several side by side - so analysis can be performed against different
+    # libstdc++ headers than compilation, or fail to find them at all.
+    # --gcc-install-dir is only understood by clang-tidy 18 and newer; older
+    # releases reject it outright, so the version is checked before adding it.
+    # The result is applied as a regular variable rather than to the cache entry
+    # so that repeated configures cannot accumulate duplicate flags.
+    foreach(LANG C CXX)
+        if(CMAKE_${LANG}_CLANG_TIDY AND CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU")
+            list(GET CMAKE_${LANG}_CLANG_TIDY 0 CLANG_TIDY_BINARY)
+            execute_process(
+                COMMAND "${CLANG_TIDY_BINARY}" --version
+                OUTPUT_VARIABLE CLANG_TIDY_VERSION_OUTPUT
+                RESULT_VARIABLE CLANG_TIDY_VERSION_RESULT
+                ERROR_QUIET)
+            execute_process(
+                COMMAND "${CMAKE_${LANG}_COMPILER}" -print-libgcc-file-name
+                OUTPUT_VARIABLE GCC_LIBGCC_FILE
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                RESULT_VARIABLE GCC_LIBGCC_RESULT
+                ERROR_QUIET)
+            string(REGEX MATCH "LLVM version ([0-9]+)" CLANG_TIDY_VERSION_MATCH
+                "${CLANG_TIDY_VERSION_OUTPUT}")
+            if(CLANG_TIDY_VERSION_RESULT EQUAL 0
+               AND GCC_LIBGCC_RESULT EQUAL 0
+               AND GCC_LIBGCC_FILE
+               AND CLANG_TIDY_VERSION_MATCH
+               AND CMAKE_MATCH_1 GREATER_EQUAL 18)
+                get_filename_component(GCC_INSTALL_DIR "${GCC_LIBGCC_FILE}" DIRECTORY)
+                message(STATUS
+                    "Pinning ${LANG} clang-tidy to GCC installation ${GCC_INSTALL_DIR}")
+                set(CMAKE_${LANG}_CLANG_TIDY
+                    "${CMAKE_${LANG}_CLANG_TIDY};--extra-arg=--gcc-install-dir=${GCC_INSTALL_DIR}"
+                    PARENT_SCOPE)
+            endif()
+        endif(CMAKE_${LANG}_CLANG_TIDY AND CMAKE_${LANG}_COMPILER_ID STREQUAL "GNU")
+    endforeach(LANG C CXX)
+
     # Code Coverage (target 'code_coverage'), to be invoked after running all tests
     if(ENABLE_COVERAGE)
         if(BUILD_TESTING)
