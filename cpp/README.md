@@ -69,6 +69,15 @@ clang-tidy analysis can be turned on by providing
 clang-tidy is capable of automatically fixing some of the detected issues: use
 `-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--fix` to enable this mode.
 
+When the compiler is GCC and clang-tidy is 16 or newer, `StandardConfig.cmake`
+also pins clang-tidy to the GCC installation that compiles the code, by adding
+`--extra-arg=--gcc-install-dir=<dir>`. Without this, clang-tidy picks the newest
+GCC on the system rather than the one used for the build, so it can analyse
+against different libstdc++ headers than compilation, or fail to find them at
+all. Images shipping several GCC versions side by side (such as the Jetson
+ones) need it. Pass your own `--gcc-install-dir` in `CMAKE_CXX_CLANG_TIDY` to
+override the detected directory.
+
 ## Conan
 
 Including `StandardConfig.cmake` does not include conan cmake integration since conan2 tries to decouple itself from build tools.  
