@@ -35,6 +35,17 @@ gets the closest to be a standard: Standard Library and
 [Boost](https://www.boost.org/). It's very simple: everything is `lower_case`
 except macros.
 
+Private and protected data members may optionally carry a trailing underscore
+(`config_`, `debug_`) to distinguish them from constructor parameters and local
+variables. This is permitted, not required: both `config_` and `config` are
+accepted, so projects are free to adopt the convention or not. The name must
+still be `lower_case` either way, so `Config_` remains an error. Exactly one
+trailing underscore is allowed: `config__` is still an error.
+
+This exception relies on clang-tidy's `IgnoredRegexp` option, introduced in
+clang-tidy 12. clang-tidy 11 and older silently ignore it and keep rejecting
+`config_`, so use clang-tidy 12 or newer if your project adopts the convention.
+
 The formatting style is based on `clang-format`-defined Microsoft style.
 
 ### clang-format
@@ -57,6 +68,15 @@ clang-tidy analysis can be turned on by providing
 `-DCMAKE_CXX_CLANG_TIDY=clang-tidy` CMake argument.
 clang-tidy is capable of automatically fixing some of the detected issues: use
 `-DCMAKE_CXX_CLANG_TIDY=clang-tidy;--fix` to enable this mode.
+
+When the compiler is GCC and clang-tidy is 16 or newer, `StandardConfig.cmake`
+also pins clang-tidy to the GCC installation that compiles the code, by adding
+`--extra-arg=--gcc-install-dir=<dir>`. Without this, clang-tidy picks the newest
+GCC on the system rather than the one used for the build, so it can analyse
+against different libstdc++ headers than compilation, or fail to find them at
+all. Images shipping several GCC versions side by side (such as the Jetson
+ones) need it. Pass your own `--gcc-install-dir` in `CMAKE_CXX_CLANG_TIDY` to
+override the detected directory.
 
 ## Conan
 
